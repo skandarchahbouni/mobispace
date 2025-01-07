@@ -1,0 +1,47 @@
+version: '3.8'
+
+services:
+  application:
+    build: ./main_app
+    image: skandarchahbouni/main_app
+    ports:
+      - "5000:5000"
+    depends_on:
+      - preprocessing
+      - classification
+      - stop_detection
+      - postgres
+
+  preprocessing:
+    build: ./preprocessing
+    image: skandarchahbouni/preprocessing
+    ports:
+      - "5001:5001"
+
+  classification:
+    build: ./classification
+    image: skandarchahbouni/classification
+    ports:
+      - "5002:5002"
+
+  stop_detection:
+    build: ./stop_detection
+    image: skandarchahbouni/stop_detection
+    ports:
+      - "5003:5003"
+
+  postgres:
+    build: ./postgres
+    image: skandarchahbouni/postgres
+    environment: # change these settings into env variables 
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: mysecretpassword 
+    ports:
+      - "5432:5432"
+
+  grafana:
+    image: grafana/grafana:latest
+    ports:
+      - "3000:3000"
+    depends_on:
+      - postgres
