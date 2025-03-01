@@ -119,13 +119,13 @@ docker-compose up --build -d
 
 ## 📸 Screenshots
 
-**Live Movement Tracking**  
-![GPS Map](https://via.placeholder.com/600x300.png?text=Live+Participant+Movement+Map)  
-*Real-time GPS data visualization with heatmap overlay*
+**Grafana Dashboard**  
+![Dashboard](https://github.com/user-attachments/assets/791387ba-f2f1-4448-a19a-29023ce9a1f7)
+*Real-time dashboard*
 
 ### Data Pipeline
 **Airflow DAG Overview**  
-![Airflow DAG](https://via.placeholder.com/600x300.png?text=Airflow+DAG+Execution)  
+![Airflow DAG](https://github.com/user-attachments/assets/59a530e0-e45e-4cf6-9f48-46e91dd50c48)
 *Data processing workflow with task dependencies*
 
 ## 🎥 Demo Video
