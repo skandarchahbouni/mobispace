@@ -1,0 +1,80 @@
+version: "3.8"
+
+services:
+  kafka:
+    image: apache/kafka-native
+    ports:
+      - "9092:9092"
+    environment:
+      # Configure listeners for both docker and host communication
+      KAFKA_LISTENERS: CONTROLLER://localhost:9091,HOST://0.0.0.0:9092,DOCKER://0.0.0.0:9093
+      KAFKA_ADVERTISED_LISTENERS: HOST://localhost:9092,DOCKER://kafka:9093
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: CONTROLLER:PLAINTEXT,DOCKER:PLAINTEXT,HOST:PLAINTEXT
+
+      # Settings required for KRaft mode
+      KAFKA_NODE_ID: 1
+      KAFKA_PROCESS_ROLES: broker,controller
+      KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
+      KAFKA_CONTROLLER_QUORUM_VOTERS: 1@localhost:9091
+      # Listener to use for broker-to-broker communication
+      KAFKA_INTER_BROKER_LISTENER_NAME: DOCKER
+      # Required for a single node cluster
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+
+  producer:
+    build:
+      context: ./producer
+      dockerfile: Dockerfile
+    image: skandarchahbouni/producer
+    depends_on:
+      - kafka
+
+  
+  consumer:
+    build:
+      context: ./consumer
+      dockerfile: Dockerfile
+    image: skandarchahbouni/consumer
+    depends_on:
+      - database
+      - kafka
+
+  database:
+    image: postgres:13
+    environment:
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: admin
+      POSTGRES_DB: mobispace
+      POSTGRES_PORT: 5433
+    command: ["postgres", "-p", "5433"] 
+    volumes:
+      - ./initdb:/docker-entrypoint-initdb.d
+    healthcheck:
+        test: ["CMD-SHELL", "pg_isready -U user -d mbspace"]
+        interval: 10s
+        timeout: 5s
+        retries: 3
+    ports:
+      - "5433:5433"
+
+  grafana:
+    image: grafana/grafana:latest
+    environment:
+      GF_SECURITY_ADMIN_PASSWORD: admin
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./grafana-data:/var/lib/grafana
+    depends_on:
+      - database
+    links:
+      - database
+
+volumes:
+  postgres_data:
+
+networks:
+  default:
+    name: mobispace
+    external: true
+
